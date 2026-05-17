@@ -12,27 +12,28 @@ https://simple-streamlit-app--sravaninomula55.replit.app/
 
 ### Hero
 
-![Hero](assets/hero.png)
+![Hero](attached_assets/hero.png)
 
 ### Vulnerability Profiles
 
-![Persona selector](assets/personas.png)
+![Persona selector](attached_assets/personas.png)
 
 ### Personalized Action Plan
 
-![Asha action plan](assets/action-plan-asha.png)
+![Asha action plan](attached_assets/action-plan-asha.png)
 
 ### Same Alert, Different Lives
 
-![Same alert different lives](assets/same-alert-different-lives.png)
+![Same alert different lives](attached_assets/same-alert-different-lives.png)
 
 ### Architecture
 
-![Architecture](assets/architecture.png)
+![Architecture](attached_assets/architecture.png)
 
 ### Safety Constraints
 
-![Safety](assets/safety.png)
+![Safety](attached_assets/safety.png)
+
 
 ## The Problem
 
