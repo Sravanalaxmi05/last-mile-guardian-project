@@ -1,13 +1,20 @@
 import { Router } from "express";
 import { z } from "zod";
 import { getPersonaById, personas } from "../data/personas";
-import { getDemoCards } from "../lib/demoCards";
-import { generateWithGemma, isGemmaAvailable, validateActionCards } from "../lib/gemmaClient";
+import { getErrorMessage } from "../lib/gemma/errors";
+import { runGemma4Pipeline } from "../lib/gemma/pipeline";
 
 const router = Router();
 
 const ActionCardRequestSchema = z.object({
   alertText: z.string().min(1),
+  personaId: z.string().min(1),
+  apiKey: z.string().optional(),
+});
+
+const ImageActionCardRequestSchema = z.object({
+  imageBase64: z.string().min(1),
+  mimeType: z.string().min(1).default("image/png"),
   personaId: z.string().min(1),
   apiKey: z.string().optional(),
 });
@@ -18,39 +25,20 @@ const CompareRequestSchema = z.object({
 });
 
 async function resolveCards(
-  persona: Parameters<typeof getPersonaById>[0] extends undefined ? never : NonNullable<ReturnType<typeof getPersonaById>>,
+  persona: NonNullable<ReturnType<typeof getPersonaById>>,
   alertText: string,
-  apiKey: string | undefined,
-  log: (msg: string) => void
-): Promise<{ cards: ReturnType<typeof getDemoCards>; mode: string; warning?: string }> {
-  if (isGemmaAvailable(apiKey)) {
-    try {
-      const cards = await generateWithGemma(persona, alertText, apiKey);
-      const unsafePhrase = validateActionCards(cards);
-      if (unsafePhrase) {
-        log(`Unsafe phrase detected in Gemma output: "${unsafePhrase}" — falling back to demo`);
-        return {
-          cards: getDemoCards(persona, alertText),
-          mode: "demo",
-          warning: `Live Gemma mode produced an unsafe phrase ("${unsafePhrase}"). Falling back to safe demo outputs.`,
-        };
-      }
-      return { cards, mode: "gemma" };
-    } catch (err) {
-      log(`Gemma failed — falling back to demo: ${String(err)}`);
-      return {
-        cards: getDemoCards(persona, alertText),
-        mode: "demo",
-        warning: "Live Gemma mode failed. Falling back to safe demo outputs.",
-      };
-    }
-  }
-
-  return { cards: getDemoCards(persona, alertText), mode: "demo" };
+  apiKey: string | undefined
+) {
+  return runGemma4Pipeline({
+    persona,
+    alertText,
+    apiKey,
+  });
 }
 
 router.post("/action-cards", async (req, res) => {
   const parsed = ActionCardRequestSchema.safeParse(req.body);
+
   if (!parsed.success) {
     res.status(400).json({ error: "alertText and personaId are required" });
     return;
@@ -64,18 +52,56 @@ router.post("/action-cards", async (req, res) => {
     return;
   }
 
-  const { cards, mode, warning } = await resolveCards(
-    persona,
-    alertText,
-    apiKey,
-    (msg) => req.log.warn(msg)
-  );
+  try {
+    const result = await resolveCards(persona, alertText, apiKey);
 
-  res.json({ persona, cards, mode, ...(warning ? { warning } : {}) });
+    res.json({
+      persona,
+      ...result,
+    });
+  } catch (error) {
+    req.log.error({ error }, "Strict Gemma 4 pipeline failed");
+    res.status(500).json({ error: getErrorMessage(error) });
+  }
+});
+
+router.post("/action-cards/from-image", async (req, res) => {
+  const parsed = ImageActionCardRequestSchema.safeParse(req.body);
+
+  if (!parsed.success) {
+    res.status(400).json({ error: "imageBase64, mimeType, and personaId are required" });
+    return;
+  }
+
+  const { imageBase64, mimeType, personaId, apiKey } = parsed.data;
+  const persona = getPersonaById(personaId);
+
+  if (!persona) {
+    res.status(400).json({ error: `Unknown persona: ${personaId}` });
+    return;
+  }
+
+  try {
+    const result = await runGemma4Pipeline({
+      persona,
+      alertImageBase64: imageBase64,
+      alertImageMimeType: mimeType,
+      apiKey,
+    });
+
+    res.json({
+      persona,
+      ...result,
+    });
+  } catch (error) {
+    req.log.error({ error }, "Strict Gemma 4 image pipeline failed");
+    res.status(500).json({ error: getErrorMessage(error) });
+  }
 });
 
 router.post("/action-cards/compare", async (req, res) => {
   const parsed = CompareRequestSchema.safeParse(req.body);
+
   if (!parsed.success) {
     res.status(400).json({ error: "alertText is required" });
     return;
@@ -83,19 +109,23 @@ router.post("/action-cards/compare", async (req, res) => {
 
   const { alertText, apiKey } = parsed.data;
 
-  const results = await Promise.all(
-    personas.map(async (persona) => {
-      const { cards, mode, warning } = await resolveCards(
-        persona,
-        alertText,
-        apiKey,
-        (msg) => req.log.warn({ personaId: persona.id }, msg)
-      );
-      return { persona, cards, mode, ...(warning ? { warning } : {}) };
-    })
-  );
+  try {
+    const results = await Promise.all(
+      personas.map(async (persona) => {
+        const result = await resolveCards(persona, alertText, apiKey);
 
-  res.json(results);
+        return {
+          persona,
+          ...result,
+        };
+      })
+    );
+
+    res.json(results);
+  } catch (error) {
+    req.log.error({ error }, "Strict Gemma 4 comparison pipeline failed");
+    res.status(500).json({ error: getErrorMessage(error) });
+  }
 });
 
 export default router;

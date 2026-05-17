@@ -9,6 +9,6 @@
 export interface CompareRequest {
   /** The official flood alert text to use for comparison */
   alertText: string;
-  /** Optional API key for live Gemma mode (used only in memory, never stored) */
+  /** Optional API key for live Gemma 4 mode (used only in memory, never stored) */
   apiKey?: string;
 }

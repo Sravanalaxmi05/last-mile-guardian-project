@@ -1,0 +1,193 @@
+{
+  "generatedAt": "2026-05-17T17:41:05.528Z",
+  "totalCases": 15,
+  "liveCases": 15,
+  "fallbackCases": 0,
+  "safetyPassed": 15,
+  "smsUnder160": 15,
+  "models": [
+    "gemma-4-31b-it"
+  ],
+  "results": [
+    {
+      "alertId": "urban-low-lying",
+      "personaId": "asha",
+      "mode": "gemma4",
+      "model": "gemma-4-31b-it",
+      "live": true,
+      "fallbackUsed": false,
+      "safetyPassed": true,
+      "smsLength": 126,
+      "latencyMs": 95865,
+      "outputHash": "68fae3bff035327b3ac7c0edb2d3864ac99a78299aa8a8ae101a1c3947073723"
+    },
+    {
+      "alertId": "urban-low-lying",
+      "personaId": "imran",
+      "mode": "gemma4",
+      "model": "gemma-4-31b-it",
+      "live": true,
+      "fallbackUsed": false,
+      "safetyPassed": true,
+      "smsLength": 140,
+      "latencyMs": 98522,
+      "outputHash": "d21e5050e32abcfab2ba874dc83f07c9c6059a128e6d25ab13144d0453c9984f"
+    },
+    {
+      "alertId": "urban-low-lying",
+      "personaId": "meena",
+      "mode": "gemma4",
+      "model": "gemma-4-31b-it",
+      "live": true,
+      "fallbackUsed": false,
+      "safetyPassed": true,
+      "smsLength": 129,
+      "latencyMs": 101183,
+      "outputHash": "be722e9cf1fc6ac0a02d3286a80ed54350c313e5b6231701f2dc59417803d6fe"
+    },
+    {
+      "alertId": "ground-floor-evacuation-advisory",
+      "personaId": "asha",
+      "mode": "gemma4",
+      "model": "gemma-4-31b-it",
+      "live": true,
+      "fallbackUsed": false,
+      "safetyPassed": true,
+      "smsLength": 116,
+      "latencyMs": 87476,
+      "outputHash": "e53c148ab20be60d4651ba101c40e946be23a377c67bf421b988e4b7ed75ebd7"
+    },
+    {
+      "alertId": "ground-floor-evacuation-advisory",
+      "personaId": "imran",
+      "mode": "gemma4",
+      "model": "gemma-4-31b-it",
+      "live": true,
+      "fallbackUsed": false,
+      "safetyPassed": true,
+      "smsLength": 138,
+      "latencyMs": 101787,
+      "outputHash": "dc68100de8cc61768c8005987388f442b8563776939a1e2ac06fa94fde84bc14"
+    },
+    {
+      "alertId": "ground-floor-evacuation-advisory",
+      "personaId": "meena",
+      "mode": "gemma4",
+      "model": "gemma-4-31b-it",
+      "live": true,
+      "fallbackUsed": false,
+      "safetyPassed": true,
+      "smsLength": 136,
+      "latencyMs": 89191,
+      "outputHash": "4d727313e1cc279f5e7d265bc9e9c30549fbfd49ef6ca2bcb646821e842e62a8"
+    },
+    {
+      "alertId": "rumor-control",
+      "personaId": "asha",
+      "mode": "gemma4",
+      "model": "gemma-4-31b-it",
+      "live": true,
+      "fallbackUsed": false,
+      "safetyPassed": true,
+      "smsLength": 132,
+      "latencyMs": 89810,
+      "outputHash": "1ed0f2d3a1f96a961287f92d141ae2be003ea90fff2b729d2f34769957e27aa6"
+    },
+    {
+      "alertId": "rumor-control",
+      "personaId": "imran",
+      "mode": "gemma4",
+      "model": "gemma-4-31b-it",
+      "live": true,
+      "fallbackUsed": false,
+      "safetyPassed": true,
+      "smsLength": 121,
+      "latencyMs": 93497,
+      "outputHash": "67d7ca858d116084fcd71fbc8b2f380d4ed7f968607b07b307fc219d23894590"
+    },
+    {
+      "alertId": "rumor-control",
+      "personaId": "meena",
+      "mode": "gemma4",
+      "model": "gemma-4-31b-it",
+      "live": true,
+      "fallbackUsed": false,
+      "safetyPassed": true,
+      "smsLength": 107,
+      "latencyMs": 105709,
+      "outputHash": "600c362c19d4702f8387473a36a04eb4148535be617ae1623e4694cf7ab8faf8"
+    },
+    {
+      "alertId": "power-outage",
+      "personaId": "asha",
+      "mode": "gemma4",
+      "model": "gemma-4-31b-it",
+      "live": true,
+      "fallbackUsed": false,
+      "safetyPassed": true,
+      "smsLength": 134,
+      "latencyMs": 105857,
+      "outputHash": "c8aaf20655c1df0fd88159a4491daffa3e45f0113c76f09a664fde2b6e77664f"
+    },
+    {
+      "alertId": "power-outage",
+      "personaId": "imran",
+      "mode": "gemma4",
+      "model": "gemma-4-31b-it",
+      "live": true,
+      "fallbackUsed": false,
+      "safetyPassed": true,
+      "smsLength": 116,
+      "latencyMs": 108625,
+      "outputHash": "8a105afdd52e9ce2e305b5f340599e923ec81133c8e8702625ad31f4a296e78b"
+    },
+    {
+      "alertId": "power-outage",
+      "personaId": "meena",
+      "mode": "gemma4",
+      "model": "gemma-4-31b-it",
+      "live": true,
+      "fallbackUsed": false,
+      "safetyPassed": true,
+      "smsLength": 126,
+      "latencyMs": 114361,
+      "outputHash": "a018ae28b34f027ba6d2c581ab09ae86c1e671a2301b295dabd9affc3206caeb"
+    },
+    {
+      "alertId": "night-rain",
+      "personaId": "asha",
+      "mode": "gemma4",
+      "model": "gemma-4-31b-it",
+      "live": true,
+      "fallbackUsed": false,
+      "safetyPassed": true,
+      "smsLength": 123,
+      "latencyMs": 94519,
+      "outputHash": "c3cb1b083e0b8d7555f1bbda3593d26cc0ca126e9b3096336432c3e71a5eafc3"
+    },
+    {
+      "alertId": "night-rain",
+      "personaId": "imran",
+      "mode": "gemma4",
+      "model": "gemma-4-31b-it",
+      "live": true,
+      "fallbackUsed": false,
+      "safetyPassed": true,
+      "smsLength": 135,
+      "latencyMs": 89092,
+      "outputHash": "64ef90880dd2df66e0f7b9ebf402f2ed90799183bb711d19f85f7dd7b93a1c8d"
+    },
+    {
+      "alertId": "night-rain",
+      "personaId": "meena",
+      "mode": "gemma4",
+      "model": "gemma-4-31b-it",
+      "live": true,
+      "fallbackUsed": false,
+      "safetyPassed": true,
+      "smsLength": 131,
+      "latencyMs": 93904,
+      "outputHash": "4e43aac57ccb5abe389faf193fdf6d73f8280b3115ea7d4fe90eef21cbf571cb"
+    }
+  ]
+}

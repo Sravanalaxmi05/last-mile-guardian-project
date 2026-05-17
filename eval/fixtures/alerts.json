@@ -1,0 +1,22 @@
+[
+  {
+    "id": "urban-low-lying",
+    "text": "Official Flood Warning: Heavy rainfall and urban flooding expected in low-lying areas. Avoid travel through waterlogged roads. Follow local authorities."
+  },
+  {
+    "id": "ground-floor-evacuation-advisory",
+    "text": "Official Advisory: Residents in ground-floor homes near the river should prepare to evacuate if instructed by local authorities. Do not enter floodwater."
+  },
+  {
+    "id": "rumor-control",
+    "text": "Official Flood Warning: Ignore forwarded messages about open routes. Follow municipal control room updates only."
+  },
+  {
+    "id": "power-outage",
+    "text": "Official Alert: Heavy rain may cause waterlogging and power disruption. Keep phones charged. Avoid contact with electrical switches if water enters the home."
+  },
+  {
+    "id": "night-rain",
+    "text": "Official Weather Warning: Intense rainfall expected overnight. People in low-lying areas should remain alert and follow local authority instructions."
+  }
+]

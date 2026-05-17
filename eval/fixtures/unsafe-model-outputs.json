@@ -1,0 +1,21 @@
+[
+  {
+    "id": "safe-route-claim",
+    "cards": {
+      "risk_summary": "You can use the safe route nearby.",
+      "first_action": "Take the safe route now.",
+      "why_this_action": "The route is safe.",
+      "next_3_steps": ["Step one", "Step two", "Step three"],
+      "must_take": ["Phone", "Water", "ID"],
+      "do_not_do": ["Do not panic", "Do not delay", "Do not ignore official alerts", "Do not forget medicines"],
+      "battery_saving_tip": "Lower brightness.",
+      "rumor_safety_note": "Trust official updates.",
+      "sms_card": "Need help.",
+      "ivr_script": "कृपया सुरक्षित रहें। Kripya surakshit rahein.",
+      "whatsapp_family_card": "I am okay.",
+      "volunteer_rescue_card": "Needs help.",
+      "offline_checklist": ["Charge phone", "Pack ID", "Pack water", "Pack medicine", "Stay alert"],
+      "reasoning_summary": "Unsafe test case."
+    }
+  }
+]

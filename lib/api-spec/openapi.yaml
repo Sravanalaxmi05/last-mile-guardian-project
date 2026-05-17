@@ -29,6 +29,20 @@ paths:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
 
+  /gemma-status:
+    get:
+      operationId: gemmaStatus
+      tags: [health]
+      summary: Gemma live-mode status
+      description: Returns non-secret Gemma 4 live-mode configuration status
+      responses:
+        "200":
+          description: Gemma configuration status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GemmaStatus"
+
   /personas:
     get:
       operationId: listPersonas
@@ -70,6 +84,44 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Strict live Gemma 4 failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /action-cards/from-image:
+    post:
+      operationId: generateActionCardsFromImage
+      tags: [cards]
+      summary: Generate action cards from an official alert image
+      description: Uses Gemma 4 multimodal input to extract official alert text from an image, then generates validated action cards.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ImageActionCardRequest"
+      responses:
+        "200":
+          description: Generated action cards
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActionCardResult"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Strict live Gemma 4 failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
 
   /action-cards/compare:
     post:
@@ -92,6 +144,18 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/PersonaCardPair"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Strict live Gemma 4 failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
 
 components:
   schemas:
@@ -102,6 +166,23 @@ components:
           type: string
       required:
         - status
+
+    GemmaStatus:
+      type: object
+      required: [configured, provider, model, isGemma4, demoModeEnabled, hasApiKey]
+      properties:
+        configured:
+          type: boolean
+        provider:
+          type: string
+        model:
+          type: string
+        isGemma4:
+          type: boolean
+        demoModeEnabled:
+          type: boolean
+        hasApiKey:
+          type: boolean
 
     ApiError:
       type: object
@@ -148,7 +229,23 @@ components:
           description: The persona ID to generate cards for
         apiKey:
           type: string
-          description: Optional API key for live Gemma mode (used only in memory, never stored)
+          description: Optional API key for live Gemma 4 mode (used only in memory, never stored)
+
+    ImageActionCardRequest:
+      type: object
+      required: [imageBase64, mimeType, personaId]
+      properties:
+        imageBase64:
+          type: string
+          description: Base64-encoded image data without data URL prefix
+        mimeType:
+          type: string
+          example: image/png
+        personaId:
+          type: string
+        apiKey:
+          type: string
+          description: Optional API key for live Gemma 4 mode
 
     CompareRequest:
       type: object
@@ -159,7 +256,83 @@ components:
           description: The official flood alert text to use for comparison
         apiKey:
           type: string
-          description: Optional API key for live Gemma mode (used only in memory, never stored)
+          description: Optional API key for live Gemma 4 mode (used only in memory, never stored)
+
+    OfficialAlert:
+      type: object
+      required: [source_type, is_official_alert, extracted_alert_text, uncertainty_notes]
+      properties:
+        source_type:
+          type: string
+          enum: [text, image]
+        is_official_alert:
+          type: boolean
+        extracted_alert_text:
+          type: string
+        location_mentioned:
+          type: string
+        time_window_mentioned:
+          type: string
+        official_authority_mentioned:
+          type: string
+        uncertainty_notes:
+          type: array
+          items:
+            type: string
+
+    DecisionPacket:
+      type: object
+      required:
+        - risk_level
+        - recommended_strategy
+        - should_call_for_help_now
+        - needs_assisted_evacuation
+        - medical_continuity_risk
+        - mobility_risk
+        - child_safety_risk
+        - connectivity_risk
+        - unsafe_movement_risk
+        - official_alert_facts_used
+        - persona_facts_used
+        - assumptions
+        - prohibited_claims_avoided
+      properties:
+        risk_level:
+          type: string
+          enum: [low, medium, high, critical]
+        recommended_strategy:
+          type: string
+          enum: [shelter_in_place, prepare_to_evacuate, call_for_assisted_evacuation, follow_official_evacuation_order]
+        should_call_for_help_now:
+          type: boolean
+        needs_assisted_evacuation:
+          type: boolean
+        medical_continuity_risk:
+          type: boolean
+        mobility_risk:
+          type: boolean
+        child_safety_risk:
+          type: boolean
+        connectivity_risk:
+          type: boolean
+        unsafe_movement_risk:
+          type: boolean
+        official_alert_facts_used:
+          type: array
+          items:
+            type: string
+        persona_facts_used:
+          type: array
+          items:
+            type: string
+        assumptions:
+          type: array
+          items:
+            type: string
+        prohibited_claims_avoided:
+          type: array
+          items:
+            type: string
 
     ActionCards:
       type: object
@@ -177,7 +350,7 @@ components:
         - whatsapp_family_card
         - volunteer_rescue_card
         - offline_checklist
-        - gemma_reasoning_summary
+        - reasoning_summary
       properties:
         risk_summary:
           type: string
@@ -213,28 +386,94 @@ components:
           type: array
           items:
             type: string
-        gemma_reasoning_summary:
+        reasoning_summary:
           type: string
+
+    SafetyValidation:
+      type: object
+      required: [passed, errors, warnings]
+      properties:
+        passed:
+          type: boolean
+        errors:
+          type: array
+          items:
+            type: string
+        warnings:
+          type: array
+          items:
+            type: string
+
+    GemmaStageMetadata:
+      type: object
+      required: [name, model, latencyMs, outputHash]
+      properties:
+        name:
+          type: string
+        model:
+          type: string
+        latencyMs:
+          type: number
+        outputHash:
+          type: string
+
+    GemmaRunMetadata:
+      type: object
+      required:
+        - provider
+        - model
+        - live
+        - fallbackUsed
+        - generatedAt
+        - latencyMs
+        - promptHash
+        - outputHash
+        - stages
+      properties:
+        provider:
+          type: string
+        model:
+          type: string
+        live:
+          type: boolean
+        fallbackUsed:
+          type: boolean
+        fallbackReason:
+          type: string
+        generatedAt:
+          type: string
+        latencyMs:
+          type: number
+        promptHash:
+          type: string
+        outputHash:
+          type: string
+        stages:
+          type: array
+          items:
+            $ref: "#/components/schemas/GemmaStageMetadata"
 
     ActionCardResult:
       type: object
-      required: [persona, cards, mode]
+      required: [persona, alert, cards, mode, safety, metadata]
       properties:
         persona:
           $ref: "#/components/schemas/Persona"
+        alert:
+          $ref: "#/components/schemas/OfficialAlert"
+        decisionPacket:
+          $ref: "#/components/schemas/DecisionPacket"
         cards:
           $ref: "#/components/schemas/ActionCards"
         mode:
           type: string
-          description: "demo or gemma"
+          enum: [gemma4, demo]
+        safety:
+          $ref: "#/components/schemas/SafetyValidation"
+        metadata:
+          $ref: "#/components/schemas/GemmaRunMetadata"
+        warning:
+          type: string
 
     PersonaCardPair:
-      type: object
-      required: [persona, cards, mode]
-      properties:
-        persona:
-          $ref: "#/components/schemas/Persona"
-        cards:
-          $ref: "#/components/schemas/ActionCards"
-        mode:
-          type: string
+      $ref: "#/components/schemas/ActionCardResult"

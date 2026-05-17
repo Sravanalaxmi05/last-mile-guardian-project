@@ -9,6 +9,15 @@ export interface HealthStatus {
   status: string;
 }
 
+export interface GemmaStatus {
+  configured: boolean;
+  provider: string;
+  model: string;
+  isGemma4: boolean;
+  demoModeEnabled: boolean;
+  hasApiKey: boolean;
+}
+
 export interface ApiError {
   error: string;
 }
@@ -30,15 +39,78 @@ export interface ActionCardRequest {
   alertText: string;
   /** The persona ID to generate cards for */
   personaId: string;
-  /** Optional API key for live Gemma mode (used only in memory, never stored) */
+  /** Optional API key for live Gemma 4 mode (used only in memory, never stored) */
+  apiKey?: string;
+}
+
+export interface ImageActionCardRequest {
+  /** Base64-encoded image data without data URL prefix */
+  imageBase64: string;
+  mimeType: string;
+  personaId: string;
+  /** Optional API key for live Gemma 4 mode */
   apiKey?: string;
 }
 
 export interface CompareRequest {
   /** The official flood alert text to use for comparison */
   alertText: string;
-  /** Optional API key for live Gemma mode (used only in memory, never stored) */
+  /** Optional API key for live Gemma 4 mode (used only in memory, never stored) */
   apiKey?: string;
+}
+
+export type OfficialAlertSourceType = typeof OfficialAlertSourceType[keyof typeof OfficialAlertSourceType];
+
+
+export const OfficialAlertSourceType = {
+  text: 'text',
+  image: 'image',
+} as const;
+
+export interface OfficialAlert {
+  source_type: OfficialAlertSourceType;
+  is_official_alert: boolean;
+  extracted_alert_text: string;
+  location_mentioned?: string;
+  time_window_mentioned?: string;
+  official_authority_mentioned?: string;
+  uncertainty_notes: string[];
+}
+
+export type DecisionPacketRiskLevel = typeof DecisionPacketRiskLevel[keyof typeof DecisionPacketRiskLevel];
+
+
+export const DecisionPacketRiskLevel = {
+  low: 'low',
+  medium: 'medium',
+  high: 'high',
+  critical: 'critical',
+} as const;
+
+export type DecisionPacketRecommendedStrategy = typeof DecisionPacketRecommendedStrategy[keyof typeof DecisionPacketRecommendedStrategy];
+
+
+export const DecisionPacketRecommendedStrategy = {
+  shelter_in_place: 'shelter_in_place',
+  prepare_to_evacuate: 'prepare_to_evacuate',
+  call_for_assisted_evacuation: 'call_for_assisted_evacuation',
+  follow_official_evacuation_order: 'follow_official_evacuation_order',
+} as const;
+
+export interface DecisionPacket {
+  risk_level: DecisionPacketRiskLevel;
+  recommended_strategy: DecisionPacketRecommendedStrategy;
+  should_call_for_help_now: boolean;
+  needs_assisted_evacuation: boolean;
+  medical_continuity_risk: boolean;
+  mobility_risk: boolean;
+  child_safety_risk: boolean;
+  connectivity_risk: boolean;
+  unsafe_movement_risk: boolean;
+  official_alert_facts_used: string[];
+  persona_facts_used: string[];
+  assumptions: string[];
+  prohibited_claims_avoided: string[];
 }
 
 export interface ActionCards {
@@ -55,19 +127,53 @@ export interface ActionCards {
   whatsapp_family_card: string;
   volunteer_rescue_card: string;
   offline_checklist: string[];
-  gemma_reasoning_summary: string;
+  reasoning_summary: string;
 }
+
+export interface SafetyValidation {
+  passed: boolean;
+  errors: string[];
+  warnings: string[];
+}
+
+export interface GemmaStageMetadata {
+  name: string;
+  model: string;
+  latencyMs: number;
+  outputHash: string;
+}
+
+export interface GemmaRunMetadata {
+  provider: string;
+  model: string;
+  live: boolean;
+  fallbackUsed: boolean;
+  fallbackReason?: string;
+  generatedAt: string;
+  latencyMs: number;
+  promptHash: string;
+  outputHash: string;
+  stages: GemmaStageMetadata[];
+}
+
+export type ActionCardResultMode = typeof ActionCardResultMode[keyof typeof ActionCardResultMode];
+
+
+export const ActionCardResultMode = {
+  gemma4: 'gemma4',
+  demo: 'demo',
+} as const;
 
 export interface ActionCardResult {
   persona: Persona;
+  alert: OfficialAlert;
+  decisionPacket?: DecisionPacket;
   cards: ActionCards;
-  /** demo or gemma */
-  mode: string;
+  mode: ActionCardResultMode;
+  safety: SafetyValidation;
+  metadata: GemmaRunMetadata;
+  warning?: string;
 }
 
-export interface PersonaCardPair {
-  persona: Persona;
-  cards: ActionCards;
-  mode: string;
-}
+export type PersonaCardPair = ActionCardResult;
 

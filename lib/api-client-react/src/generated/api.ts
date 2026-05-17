@@ -24,9 +24,10 @@ import type {
   ActionCardResult,
   ApiError,
   CompareRequest,
+  GemmaStatus,
   HealthStatus,
-  Persona,
-  PersonaCardPair
+  ImageActionCardRequest,
+  Persona
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -107,6 +108,84 @@ export function useHealthCheck<TData = Awaited<ReturnType<typeof healthCheck>>, 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getHealthCheckQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGemmaStatusUrl = () => {
+
+
+
+
+  return `/api/gemma-status`
+}
+
+/**
+ * Returns non-secret Gemma 4 live-mode configuration status
+ * @summary Gemma live-mode status
+ */
+export const gemmaStatus = async ( options?: RequestInit): Promise<GemmaStatus> => {
+
+  return customFetch<GemmaStatus>(getGemmaStatusUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGemmaStatusQueryKey = () => {
+    return [
+    `/api/gemma-status`
+    ] as const;
+    }
+
+
+export const getGemmaStatusQueryOptions = <TData = Awaited<ReturnType<typeof gemmaStatus>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof gemmaStatus>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGemmaStatusQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof gemmaStatus>>> = ({ signal }) => gemmaStatus({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof gemmaStatus>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GemmaStatusQueryResult = NonNullable<Awaited<ReturnType<typeof gemmaStatus>>>
+export type GemmaStatusQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Gemma live-mode status
+ */
+
+export function useGemmaStatus<TData = Awaited<ReturnType<typeof gemmaStatus>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof gemmaStatus>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGemmaStatusQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -269,6 +348,78 @@ export const useGenerateActionCards = <TError = ErrorType<ApiError>,
       return useMutation(getGenerateActionCardsMutationOptions(options));
     }
 
+export const getGenerateActionCardsFromImageUrl = () => {
+
+
+
+
+  return `/api/action-cards/from-image`
+}
+
+/**
+ * Uses Gemma 4 multimodal input to extract official alert text from an image, then generates validated action cards.
+ * @summary Generate action cards from an official alert image
+ */
+export const generateActionCardsFromImage = async (imageActionCardRequest: ImageActionCardRequest, options?: RequestInit): Promise<ActionCardResult> => {
+
+  return customFetch<ActionCardResult>(getGenerateActionCardsFromImageUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      imageActionCardRequest,)
+  }
+);}
+
+
+
+
+export const getGenerateActionCardsFromImageMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateActionCardsFromImage>>, TError,{data: BodyType<ImageActionCardRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof generateActionCardsFromImage>>, TError,{data: BodyType<ImageActionCardRequest>}, TContext> => {
+
+const mutationKey = ['generateActionCardsFromImage'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof generateActionCardsFromImage>>, {data: BodyType<ImageActionCardRequest>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  generateActionCardsFromImage(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type GenerateActionCardsFromImageMutationResult = NonNullable<Awaited<ReturnType<typeof generateActionCardsFromImage>>>
+    export type GenerateActionCardsFromImageMutationBody = BodyType<ImageActionCardRequest>
+    export type GenerateActionCardsFromImageMutationError = ErrorType<ApiError>
+
+    /**
+ * @summary Generate action cards from an official alert image
+ */
+export const useGenerateActionCardsFromImage = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateActionCardsFromImage>>, TError,{data: BodyType<ImageActionCardRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof generateActionCardsFromImage>>,
+        TError,
+        {data: BodyType<ImageActionCardRequest>},
+        TContext
+      > => {
+      return useMutation(getGenerateActionCardsFromImageMutationOptions(options));
+    }
+
 export const getComparePersonasUrl = () => {
 
 
@@ -281,9 +432,9 @@ export const getComparePersonasUrl = () => {
  * Generate action cards for all personas with the same alert for side-by-side comparison
  * @summary Compare all personas
  */
-export const comparePersonas = async (compareRequest: CompareRequest, options?: RequestInit): Promise<PersonaCardPair[]> => {
+export const comparePersonas = async (compareRequest: CompareRequest, options?: RequestInit): Promise<ActionCardResult[]> => {
 
-  return customFetch<PersonaCardPair[]>(getComparePersonasUrl(),
+  return customFetch<ActionCardResult[]>(getComparePersonasUrl(),
   {
     ...options,
     method: 'POST',
@@ -296,7 +447,7 @@ export const comparePersonas = async (compareRequest: CompareRequest, options?: 
 
 
 
-export const getComparePersonasMutationOptions = <TError = ErrorType<unknown>,
+export const getComparePersonasMutationOptions = <TError = ErrorType<ApiError>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof comparePersonas>>, TError,{data: BodyType<CompareRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof comparePersonas>>, TError,{data: BodyType<CompareRequest>}, TContext> => {
 
@@ -325,12 +476,12 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type ComparePersonasMutationResult = NonNullable<Awaited<ReturnType<typeof comparePersonas>>>
     export type ComparePersonasMutationBody = BodyType<CompareRequest>
-    export type ComparePersonasMutationError = ErrorType<unknown>
+    export type ComparePersonasMutationError = ErrorType<ApiError>
 
     /**
  * @summary Compare all personas
  */
-export const useComparePersonas = <TError = ErrorType<unknown>,
+export const useComparePersonas = <TError = ErrorType<ApiError>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof comparePersonas>>, TError,{data: BodyType<CompareRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof comparePersonas>>,

@@ -20,5 +20,5 @@ export interface ActionCards {
   whatsapp_family_card: string;
   volunteer_rescue_card: string;
   offline_checklist: string[];
-  gemma_reasoning_summary: string;
+  reasoning_summary: string;
 }

@@ -18,6 +18,20 @@ export const HealthCheckResponse = zod.object({
 
 
 /**
+ * Returns non-secret Gemma 4 live-mode configuration status
+ * @summary Gemma live-mode status
+ */
+export const GemmaStatusResponse = zod.object({
+  "configured": zod.boolean(),
+  "provider": zod.string(),
+  "model": zod.string(),
+  "isGemma4": zod.boolean(),
+  "demoModeEnabled": zod.boolean(),
+  "hasApiKey": zod.boolean()
+})
+
+
+/**
  * Returns the list of predefined vulnerable personas
  * @summary Get available personas
  */
@@ -42,7 +56,7 @@ export const ListPersonasResponse = zod.array(ListPersonasResponseItem)
 export const GenerateActionCardsBody = zod.object({
   "alertText": zod.string().describe('The official flood alert text'),
   "personaId": zod.string().describe('The persona ID to generate cards for'),
-  "apiKey": zod.string().optional().describe('Optional API key for live Gemma mode (used only in memory, never stored)')
+  "apiKey": zod.string().optional().describe('Optional API key for live Gemma 4 mode (used only in memory, never stored)')
 })
 
 export const GenerateActionCardsResponse = zod.object({
@@ -57,6 +71,30 @@ export const GenerateActionCardsResponse = zod.object({
   "languagePreference": zod.string(),
   "internetStrength": zod.string()
 }),
+  "alert": zod.object({
+  "source_type": zod.enum(['text', 'image']),
+  "is_official_alert": zod.boolean(),
+  "extracted_alert_text": zod.string(),
+  "location_mentioned": zod.string().optional(),
+  "time_window_mentioned": zod.string().optional(),
+  "official_authority_mentioned": zod.string().optional(),
+  "uncertainty_notes": zod.array(zod.string())
+}),
+  "decisionPacket": zod.object({
+  "risk_level": zod.enum(['low', 'medium', 'high', 'critical']),
+  "recommended_strategy": zod.enum(['shelter_in_place', 'prepare_to_evacuate', 'call_for_assisted_evacuation', 'follow_official_evacuation_order']),
+  "should_call_for_help_now": zod.boolean(),
+  "needs_assisted_evacuation": zod.boolean(),
+  "medical_continuity_risk": zod.boolean(),
+  "mobility_risk": zod.boolean(),
+  "child_safety_risk": zod.boolean(),
+  "connectivity_risk": zod.boolean(),
+  "unsafe_movement_risk": zod.boolean(),
+  "official_alert_facts_used": zod.array(zod.string()),
+  "persona_facts_used": zod.array(zod.string()),
+  "assumptions": zod.array(zod.string()),
+  "prohibited_claims_avoided": zod.array(zod.string())
+}).optional(),
   "cards": zod.object({
   "risk_summary": zod.string(),
   "first_action": zod.string(),
@@ -71,9 +109,122 @@ export const GenerateActionCardsResponse = zod.object({
   "whatsapp_family_card": zod.string(),
   "volunteer_rescue_card": zod.string(),
   "offline_checklist": zod.array(zod.string()),
-  "gemma_reasoning_summary": zod.string()
+  "reasoning_summary": zod.string()
 }),
-  "mode": zod.string().describe('demo or gemma')
+  "mode": zod.enum(['gemma4', 'demo']),
+  "safety": zod.object({
+  "passed": zod.boolean(),
+  "errors": zod.array(zod.string()),
+  "warnings": zod.array(zod.string())
+}),
+  "metadata": zod.object({
+  "provider": zod.string(),
+  "model": zod.string(),
+  "live": zod.boolean(),
+  "fallbackUsed": zod.boolean(),
+  "fallbackReason": zod.string().optional(),
+  "generatedAt": zod.string(),
+  "latencyMs": zod.number(),
+  "promptHash": zod.string(),
+  "outputHash": zod.string(),
+  "stages": zod.array(zod.object({
+  "name": zod.string(),
+  "model": zod.string(),
+  "latencyMs": zod.number(),
+  "outputHash": zod.string()
+}))
+}),
+  "warning": zod.string().optional()
+})
+
+
+/**
+ * Uses Gemma 4 multimodal input to extract official alert text from an image, then generates validated action cards.
+ * @summary Generate action cards from an official alert image
+ */
+export const GenerateActionCardsFromImageBody = zod.object({
+  "imageBase64": zod.string().describe('Base64-encoded image data without data URL prefix'),
+  "mimeType": zod.string(),
+  "personaId": zod.string(),
+  "apiKey": zod.string().optional().describe('Optional API key for live Gemma 4 mode')
+})
+
+export const GenerateActionCardsFromImageResponse = zod.object({
+  "persona": zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "age": zod.number(),
+  "description": zod.string(),
+  "conditions": zod.array(zod.string()),
+  "floor": zod.string(),
+  "canEvacuateAlone": zod.boolean(),
+  "languagePreference": zod.string(),
+  "internetStrength": zod.string()
+}),
+  "alert": zod.object({
+  "source_type": zod.enum(['text', 'image']),
+  "is_official_alert": zod.boolean(),
+  "extracted_alert_text": zod.string(),
+  "location_mentioned": zod.string().optional(),
+  "time_window_mentioned": zod.string().optional(),
+  "official_authority_mentioned": zod.string().optional(),
+  "uncertainty_notes": zod.array(zod.string())
+}),
+  "decisionPacket": zod.object({
+  "risk_level": zod.enum(['low', 'medium', 'high', 'critical']),
+  "recommended_strategy": zod.enum(['shelter_in_place', 'prepare_to_evacuate', 'call_for_assisted_evacuation', 'follow_official_evacuation_order']),
+  "should_call_for_help_now": zod.boolean(),
+  "needs_assisted_evacuation": zod.boolean(),
+  "medical_continuity_risk": zod.boolean(),
+  "mobility_risk": zod.boolean(),
+  "child_safety_risk": zod.boolean(),
+  "connectivity_risk": zod.boolean(),
+  "unsafe_movement_risk": zod.boolean(),
+  "official_alert_facts_used": zod.array(zod.string()),
+  "persona_facts_used": zod.array(zod.string()),
+  "assumptions": zod.array(zod.string()),
+  "prohibited_claims_avoided": zod.array(zod.string())
+}).optional(),
+  "cards": zod.object({
+  "risk_summary": zod.string(),
+  "first_action": zod.string(),
+  "why_this_action": zod.string(),
+  "next_3_steps": zod.array(zod.string()),
+  "must_take": zod.array(zod.string()),
+  "do_not_do": zod.array(zod.string()),
+  "battery_saving_tip": zod.string(),
+  "rumor_safety_note": zod.string(),
+  "sms_card": zod.string(),
+  "ivr_script": zod.string(),
+  "whatsapp_family_card": zod.string(),
+  "volunteer_rescue_card": zod.string(),
+  "offline_checklist": zod.array(zod.string()),
+  "reasoning_summary": zod.string()
+}),
+  "mode": zod.enum(['gemma4', 'demo']),
+  "safety": zod.object({
+  "passed": zod.boolean(),
+  "errors": zod.array(zod.string()),
+  "warnings": zod.array(zod.string())
+}),
+  "metadata": zod.object({
+  "provider": zod.string(),
+  "model": zod.string(),
+  "live": zod.boolean(),
+  "fallbackUsed": zod.boolean(),
+  "fallbackReason": zod.string().optional(),
+  "generatedAt": zod.string(),
+  "latencyMs": zod.number(),
+  "promptHash": zod.string(),
+  "outputHash": zod.string(),
+  "stages": zod.array(zod.object({
+  "name": zod.string(),
+  "model": zod.string(),
+  "latencyMs": zod.number(),
+  "outputHash": zod.string()
+}))
+}),
+  "warning": zod.string().optional()
 })
 
 
@@ -83,7 +234,7 @@ export const GenerateActionCardsResponse = zod.object({
  */
 export const ComparePersonasBody = zod.object({
   "alertText": zod.string().describe('The official flood alert text to use for comparison'),
-  "apiKey": zod.string().optional().describe('Optional API key for live Gemma mode (used only in memory, never stored)')
+  "apiKey": zod.string().optional().describe('Optional API key for live Gemma 4 mode (used only in memory, never stored)')
 })
 
 export const ComparePersonasResponseItem = zod.object({
@@ -98,6 +249,30 @@ export const ComparePersonasResponseItem = zod.object({
   "languagePreference": zod.string(),
   "internetStrength": zod.string()
 }),
+  "alert": zod.object({
+  "source_type": zod.enum(['text', 'image']),
+  "is_official_alert": zod.boolean(),
+  "extracted_alert_text": zod.string(),
+  "location_mentioned": zod.string().optional(),
+  "time_window_mentioned": zod.string().optional(),
+  "official_authority_mentioned": zod.string().optional(),
+  "uncertainty_notes": zod.array(zod.string())
+}),
+  "decisionPacket": zod.object({
+  "risk_level": zod.enum(['low', 'medium', 'high', 'critical']),
+  "recommended_strategy": zod.enum(['shelter_in_place', 'prepare_to_evacuate', 'call_for_assisted_evacuation', 'follow_official_evacuation_order']),
+  "should_call_for_help_now": zod.boolean(),
+  "needs_assisted_evacuation": zod.boolean(),
+  "medical_continuity_risk": zod.boolean(),
+  "mobility_risk": zod.boolean(),
+  "child_safety_risk": zod.boolean(),
+  "connectivity_risk": zod.boolean(),
+  "unsafe_movement_risk": zod.boolean(),
+  "official_alert_facts_used": zod.array(zod.string()),
+  "persona_facts_used": zod.array(zod.string()),
+  "assumptions": zod.array(zod.string()),
+  "prohibited_claims_avoided": zod.array(zod.string())
+}).optional(),
   "cards": zod.object({
   "risk_summary": zod.string(),
   "first_action": zod.string(),
@@ -112,9 +287,32 @@ export const ComparePersonasResponseItem = zod.object({
   "whatsapp_family_card": zod.string(),
   "volunteer_rescue_card": zod.string(),
   "offline_checklist": zod.array(zod.string()),
-  "gemma_reasoning_summary": zod.string()
+  "reasoning_summary": zod.string()
 }),
-  "mode": zod.string()
+  "mode": zod.enum(['gemma4', 'demo']),
+  "safety": zod.object({
+  "passed": zod.boolean(),
+  "errors": zod.array(zod.string()),
+  "warnings": zod.array(zod.string())
+}),
+  "metadata": zod.object({
+  "provider": zod.string(),
+  "model": zod.string(),
+  "live": zod.boolean(),
+  "fallbackUsed": zod.boolean(),
+  "fallbackReason": zod.string().optional(),
+  "generatedAt": zod.string(),
+  "latencyMs": zod.number(),
+  "promptHash": zod.string(),
+  "outputHash": zod.string(),
+  "stages": zod.array(zod.object({
+  "name": zod.string(),
+  "model": zod.string(),
+  "latencyMs": zod.number(),
+  "outputHash": zod.string()
+}))
+}),
+  "warning": zod.string().optional()
 })
 export const ComparePersonasResponse = zod.array(ComparePersonasResponseItem)
 

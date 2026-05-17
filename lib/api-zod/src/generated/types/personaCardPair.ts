@@ -5,11 +5,6 @@
  * Last-Mile Guardian API
  * OpenAPI spec version: 0.1.0
  */
-import type { ActionCards } from './actionCards';
-import type { Persona } from './persona';
+import type { ActionCardResult } from './actionCardResult';
 
-export interface PersonaCardPair {
-  persona: Persona;
-  cards: ActionCards;
-  mode: string;
-}
+export type PersonaCardPair = ActionCardResult;

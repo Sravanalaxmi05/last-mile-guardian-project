@@ -1,5 +1,11 @@
-import { useState, useEffect } from "react";
-import { useListPersonas, useGenerateActionCards, useComparePersonas } from "@workspace/api-client-react";
+import { useState } from "react";
+import {
+  useComparePersonas,
+  useGemmaStatus,
+  useGenerateActionCards,
+  useGenerateActionCardsFromImage,
+  useListPersonas,
+} from "@workspace/api-client-react";
 import {
   AlertTriangle, ShieldCheck, Activity, Smartphone, Info, RefreshCw, CheckCircle2,
   XCircle, Battery, MessageSquare, Megaphone, CheckSquare, BrainCircuit, Code,
@@ -14,7 +20,11 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { ActionCardResult, PersonaCardPair } from "@workspace/api-client-react/src/generated/api.schemas";
+import { AlertImageUpload } from "@/components/AlertImageUpload";
+import { DecisionPacketPanel } from "@/components/DecisionPacketPanel";
+import { LiveRunProof } from "@/components/LiveRunProof";
+import { SafetyValidationPanel } from "@/components/SafetyValidationPanel";
+import type { ActionCardResult, PersonaCardPair } from "@workspace/api-client-react";
 
 type ResultWithWarning = (ActionCardResult | PersonaCardPair) & { warning?: string };
 
@@ -31,21 +41,33 @@ export default function Home() {
   const [selectedPersonaId, setSelectedPersonaId] = useState<string | null>(null);
   const [apiKey, setApiKey] = useState("");
   const [showApiKey, setShowApiKey] = useState(false);
+  const [alertImage, setAlertImage] = useState<{ base64: string; mimeType: string } | null>(null);
 
   const { data: personas, isLoading: personasLoading } = useListPersonas();
+  const { data: gemmaStatus } = useGemmaStatus();
   const generateCards = useGenerateActionCards();
+  const generateCardsFromImage = useGenerateActionCardsFromImage();
   const comparePersonas = useComparePersonas();
 
   const trimmedKey = apiKey.trim() || undefined;
-
-  useEffect(() => {
-    if (personas && personas.length > 0 && !comparePersonas.data && !comparePersonas.isPending) {
-      comparePersonas.mutate({ data: { alertText, ...(trimmedKey ? { apiKey: trimmedKey } : {}) } });
-    }
-  }, [personas]);
+  const activeResult = generateCardsFromImage.data || generateCards.data;
+  const isGenerating = generateCardsFromImage.isPending || generateCards.isPending;
 
   const handleGenerate = () => {
     if (!selectedPersonaId) return;
+
+    if (alertImage) {
+      generateCardsFromImage.mutate({
+        data: {
+          imageBase64: alertImage.base64,
+          mimeType: alertImage.mimeType,
+          personaId: selectedPersonaId,
+          ...(trimmedKey ? { apiKey: trimmedKey } : {}),
+        },
+      });
+      return;
+    }
+
     generateCards.mutate({
       data: { alertText, personaId: selectedPersonaId, ...(trimmedKey ? { apiKey: trimmedKey } : {}) }
     });
@@ -101,9 +123,19 @@ export default function Home() {
                     className="min-h-[80px] text-base resize-y bg-background font-medium focus-visible:ring-primary"
                     placeholder="Paste official alert text here..."
                   />
+                  <div className="pt-4 mt-4 border-t">
+                    <AlertImageUpload onImageReady={setAlertImage} />
+                    {alertImage && (
+                      <p className="text-xs text-primary mt-2">
+                        Image ready — generation will use the image extraction path.
+                      </p>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             </div>
+
+            <GemmaStatusCard status={gemmaStatus} />
 
             {/* Optional Gemma API Key */}
             <div className="space-y-2">
@@ -136,14 +168,14 @@ export default function Home() {
                       />
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Without a key, the app uses high-quality demo outputs.
-                      With a key, Gemma generates live responses. The key is never logged, stored, or displayed.
-                      You can also set <code className="bg-muted px-1 rounded">GOOGLE_API_KEY</code> in Replit Secrets for persistent live mode.
+                      Set a valid Gemma 4 model and API key to enable live mode. Demo fallback is clearly labeled.
+                      The key is never logged, stored, or displayed. You can also set{" "}
+                      <code className="bg-muted px-1 rounded">GOOGLE_API_KEY</code> in Replit Secrets for persistent live mode.
                     </p>
                     {trimmedKey && (
                       <div className="flex items-center gap-2 text-xs text-green-700 bg-green-50 border border-green-200 rounded px-3 py-2">
                         <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0" />
-                        API key set — next generation will use Live Gemma Mode
+                        API key set — the next result will prove whether live mode ran
                       </div>
                     )}
                   </CardContent>
@@ -217,15 +249,15 @@ export default function Home() {
                 data-testid="button-generate"
                 className="w-full md:w-auto md:min-w-[300px] text-lg h-12 font-semibold shadow-md"
                 onClick={handleGenerate}
-                disabled={!selectedPersonaId || generateCards.isPending}
+                disabled={!selectedPersonaId || isGenerating}
               >
-                {generateCards.isPending ? (
+                {isGenerating ? (
                   <>
                     <RefreshCw className="mr-2 h-5 w-5 animate-spin" />
                     Analyzing Situation...
                   </>
                 ) : (
-                  "Generate Action Cards with Gemma 4"
+                  "Generate Validated Action Cards"
                 )}
               </Button>
             </div>
@@ -233,23 +265,27 @@ export default function Home() {
         </section>
 
         {/* Generated Cards Section */}
-        {generateCards.data && (
+        {activeResult && (
           <section className="py-10 px-4 container mx-auto max-w-4xl space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b">
               <h2 className="text-2xl font-bold text-foreground">
-                Action Plan for {generateCards.data.persona.name}
+                Action Plan for {activeResult.persona.name}
               </h2>
-              <ModeBadge mode={generateCards.data.mode} />
+              <ModeBadge mode={activeResult.mode} />
             </div>
 
-            {(generateCards.data as ResultWithWarning).warning && (
+            {(activeResult as ResultWithWarning).warning && (
               <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-sm text-amber-800">
                 <AlertTriangle className="h-4 w-4 flex-shrink-0 mt-0.5" />
-                <span>{(generateCards.data as ResultWithWarning).warning}</span>
+                <span>{(activeResult as ResultWithWarning).warning}</span>
               </div>
             )}
 
-            <ActionCardsDisplay data={generateCards.data} />
+            <LiveRunProof data={activeResult} />
+            <OfficialAlertPanel data={activeResult} />
+            <DecisionPacketPanel packet={activeResult.decisionPacket} />
+            <SafetyValidationPanel safety={activeResult.safety} />
+            <ActionCardsDisplay data={activeResult} />
           </section>
         )}
 
@@ -291,11 +327,18 @@ export default function Home() {
                   variant="outline"
                   size="lg"
                   data-testid="button-compare"
-                  onClick={() => comparePersonas.mutate({ data: { alertText } })}
+                  onClick={() =>
+                    comparePersonas.mutate({
+                      data: { alertText, ...(trimmedKey ? { apiKey: trimmedKey } : {}) },
+                    })
+                  }
                   className="font-semibold"
                 >
-                  Load Comparison
+                  Run Three-Person Comparison
                 </Button>
+                <p className="text-xs text-muted-foreground mt-3">
+                  Runs one validated pipeline per persona so comparison is explicit, not hidden background work.
+                </p>
               </div>
             )}
           </div>
@@ -311,15 +354,15 @@ export default function Home() {
 
             <div className="p-6 rounded-2xl bg-card border shadow-sm overflow-x-auto">
               <div className="flex flex-col md:flex-row items-center justify-center gap-3 text-sm min-w-[500px]">
-                <PipelineBlock label="Official Alert" sublabel="Government warning text" color="amber" icon={<AlertTriangle className="h-4 w-4" />} />
+                <PipelineBlock label="Official Alert" sublabel="Text or image" color="amber" icon={<AlertTriangle className="h-4 w-4" />} />
                 <PipelineArrow />
-                <PipelineBlock label="Vulnerability Profile" sublabel="Age, mobility, conditions" color="blue" icon={<Activity className="h-4 w-4" />} />
+                <PipelineBlock label="Alert Artifact" sublabel="Extracted + normalized" color="blue" icon={<Activity className="h-4 w-4" />} />
                 <PipelineArrow />
-                <PipelineBlock label="Safety Rules" sublabel="No route claims, no rescue guarantees" color="red" icon={<ShieldCheck className="h-4 w-4" />} />
+                <PipelineBlock label="Decision Packet" sublabel="Typed vulnerability result" color="red" icon={<ShieldCheck className="h-4 w-4" />} />
                 <PipelineArrow />
-                <PipelineBlock label="Gemma 4 Reasoning" sublabel="Structured AI response" color="primary" icon={<BrainCircuit className="h-4 w-4" />} highlighted />
+                <PipelineBlock label="Live Gemma 4 Decision Pipeline" sublabel="Channel card generation" color="primary" icon={<BrainCircuit className="h-4 w-4" />} highlighted />
                 <PipelineArrow />
-                <PipelineBlock label="Action Cards" sublabel="SMS / IVR / WhatsApp / Rescue / Checklist" color="green" icon={<CheckSquare className="h-4 w-4" />} />
+                <PipelineBlock label="Validated Cards" sublabel="Zod + life-safety checks" color="green" icon={<CheckSquare className="h-4 w-4" />} />
               </div>
             </div>
           </div>
@@ -354,7 +397,7 @@ export default function Home() {
 
       <footer className="py-6 text-center text-sm text-muted-foreground border-t space-y-1">
         <p className="font-medium">Built for the Gemma 4 Good Hackathon</p>
-        <p className="text-xs">Demo mode active — set GOOGLE_API_KEY to enable real Gemma 4 responses</p>
+        <p className="text-xs">Set a valid Gemma 4 model and API key to enable live mode. Demo fallback is clearly labeled.</p>
       </footer>
     </div>
   );
@@ -376,6 +419,49 @@ function PipelineBlock({
 
 function PipelineArrow() {
   return <span className="text-muted-foreground text-lg font-light hidden md:block">→</span>;
+}
+
+function GemmaStatusCard({ status }: { status?: {
+  configured: boolean;
+  provider: string;
+  model: string;
+  isGemma4: boolean;
+  demoModeEnabled: boolean;
+  hasApiKey: boolean;
+} }) {
+  if (!status) return null;
+
+  return (
+    <Card className="border-primary/20">
+      <CardHeader className="py-3">
+        <CardTitle className="text-base">Gemma Configuration Status</CardTitle>
+      </CardHeader>
+      <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs font-mono">
+        <div>Configured: {String(status.configured)}</div>
+        <div>Provider: {status.provider}</div>
+        <div>Model: {status.model}</div>
+        <div>Is Gemma 4: {String(status.isGemma4)}</div>
+        <div>Has API key: {String(status.hasApiKey)}</div>
+        <div>Demo mode enabled: {String(status.demoModeEnabled)}</div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function OfficialAlertPanel({ data }: { data: ActionCardResult }) {
+  return (
+    <Card>
+      <CardHeader className="py-3">
+        <CardTitle className="text-base">Official Alert Artifact</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-2 text-sm">
+        <div className="text-xs font-mono text-muted-foreground">
+          Source: {data.alert.source_type} · Official: {String(data.alert.is_official_alert)}
+        </div>
+        <p>{data.alert.extracted_alert_text}</p>
+      </CardContent>
+    </Card>
+  );
 }
 
 function CompareCard({ pair }: { pair: PersonaCardPair }) {
@@ -621,16 +707,16 @@ function ActionCardsDisplay({ data }: { data: ActionCardResult }) {
         </CardContent>
       </Card>
 
-      {/* Collapsible: Gemma Reasoning */}
+      {/* Collapsible: Reasoning */}
       <Accordion type="single" collapsible className="w-full bg-card border rounded-lg shadow-sm">
         <AccordionItem value="reasoning" className="border-b-0">
           <AccordionTrigger className="px-4 hover:bg-muted/50 transition-colors">
             <div className="flex items-center gap-2 font-medium text-sm">
-              <BrainCircuit className="h-4 w-4 text-primary" /> Gemma Reasoning Summary
+              <BrainCircuit className="h-4 w-4 text-primary" /> Reasoning Summary
             </div>
           </AccordionTrigger>
           <AccordionContent className="px-4 pb-4">
-            <p className="text-sm text-muted-foreground leading-relaxed">{cards.gemma_reasoning_summary}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">{cards.reasoning_summary}</p>
           </AccordionContent>
         </AccordionItem>
       </Accordion>
@@ -658,7 +744,7 @@ function ActionCardsDisplay({ data }: { data: ActionCardResult }) {
 }
 
 function ModeBadge({ mode }: { mode: string }) {
-  if (mode === "gemma") {
+  if (mode === "gemma4") {
     return (
       <div className="flex items-center gap-2">
         <Badge variant="outline" className="text-xs font-mono px-3 py-1 bg-green-100 text-green-800 border-green-300">

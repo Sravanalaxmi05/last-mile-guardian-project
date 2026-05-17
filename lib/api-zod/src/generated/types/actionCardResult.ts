@@ -5,12 +5,21 @@
  * Last-Mile Guardian API
  * OpenAPI spec version: 0.1.0
  */
+import type { ActionCardResultMode } from './actionCardResultMode';
 import type { ActionCards } from './actionCards';
+import type { DecisionPacket } from './decisionPacket';
+import type { GemmaRunMetadata } from './gemmaRunMetadata';
+import type { OfficialAlert } from './officialAlert';
 import type { Persona } from './persona';
+import type { SafetyValidation } from './safetyValidation';
 
 export interface ActionCardResult {
   persona: Persona;
+  alert: OfficialAlert;
+  decisionPacket?: DecisionPacket;
   cards: ActionCards;
-  /** demo or gemma */
-  mode: string;
+  mode: ActionCardResultMode;
+  safety: SafetyValidation;
+  metadata: GemmaRunMetadata;
+  warning?: string;
 }

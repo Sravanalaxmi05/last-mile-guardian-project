@@ -1,21 +1,5 @@
 import type { Persona } from "../data/personas";
-
-export interface ActionCards {
-  risk_summary: string;
-  first_action: string;
-  why_this_action: string;
-  next_3_steps: string[];
-  must_take: string[];
-  do_not_do: string[];
-  battery_saving_tip: string;
-  rumor_safety_note: string;
-  sms_card: string;
-  ivr_script: string;
-  whatsapp_family_card: string;
-  volunteer_rescue_card: string;
-  offline_checklist: string[];
-  gemma_reasoning_summary: string;
-}
+import type { ActionCards } from "./gemma/schemas";
 
 export function getDemoCards(persona: Persona, _alertText: string): ActionCards {
   const cards: Record<string, ActionCards> = {
@@ -67,7 +51,7 @@ export function getDemoCards(persona: Persona, _alertText: string): ActionCards 
         "Switch off all electrical appliances",
         "Keep shoes on at all times",
       ],
-      gemma_reasoning_summary:
+      reasoning_summary:
         "Asha presents compounding vulnerabilities: ground floor (highest flood risk), diabetic (medication timing critical), living alone (no immediate support), limited mobility (requires external evacuation help). Priority sequence: (1) vertical elevation indoors, (2) secure medication, (3) establish communication, (4) signal for rescue. Outdoor movement without assistance is not recommended. Demo mode active.",
     },
 
@@ -92,7 +76,7 @@ export function getDemoCards(persona: Persona, _alertText: string): ActionCards 
       do_not_do: [
         "Do not attempt stairs or ramps without trained help",
         "Do not wait silently — actively contact rescue services",
-        "Do not move wheelchair into waterlogged areas",
+        "Do not move wheelchair into floodwater or waterlogged areas",
         "Do not follow unverified evacuation route information",
         "Do not disconnect from rescue services communication",
       ],
@@ -117,7 +101,7 @@ export function getDemoCards(persona: Persona, _alertText: string): ActionCards 
         "Place bright cloth or light at window",
         "Stay away from windows and electrical outlets",
       ],
-      gemma_reasoning_summary:
+      reasoning_summary:
         "Imran's primary vulnerability is mobility dependency — evacuation is impossible without external assistance and appropriate equipment. First-floor placement provides a time advantage, but this window is wasted if rescue coordination is delayed. Critical intervention: contact emergency services early enough for them to organize wheelchair evacuation equipment and personnel. Demo mode active.",
     },
 
@@ -169,7 +153,7 @@ export function getDemoCards(persona: Persona, _alertText: string): ActionCards 
         "Send location update to family",
         "Keep phone on loud and charged",
       ],
-      gemma_reasoning_summary:
+      reasoning_summary:
         "Meena's situation is a shelter-and-prepare scenario: water is outside but not inside, giving her preparation time. With two children, unplanned movement is more dangerous than calm indoor preparation. The recommended action is: stay indoors, prepare supplies, and wait for official evacuation instructions. Moving without official guidance increases risk for the children. Demo mode active.",
     },
   };

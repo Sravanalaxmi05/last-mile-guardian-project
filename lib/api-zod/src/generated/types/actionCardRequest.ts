@@ -11,6 +11,6 @@ export interface ActionCardRequest {
   alertText: string;
   /** The persona ID to generate cards for */
   personaId: string;
-  /** Optional API key for live Gemma mode (used only in memory, never stored) */
+  /** Optional API key for live Gemma 4 mode (used only in memory, never stored) */
   apiKey?: string;
 }
