@@ -2,6 +2,12 @@
 
 An alert-to-action translation layer for floods. Converts a single official government flood warning into personalized survival action cards for vulnerable people who may not know what to do next.
 
+## Live Demo
+
+Try the deployed MVP here:
+
+https://simple-streamlit-app--sravaninomula55.replit.app/
+
 ## The Problem
 
 Official flood alerts are broadcast to everyone. But a 68-year-old diabetic woman living alone on the ground floor needs completely different actions than a wheelchair user on the first floor — and both need different guidance than a mother sheltering with two young children. The alert tells them the danger. It does not tell them their next safe action.
