@@ -85,6 +85,28 @@ Each generated card contains:
 | `offline_checklist` | Printable checklist |
 | `gemma_reasoning_summary` | AI reasoning explanation |
 
+## Code Map
+
+The project is organized as a Replit-built TypeScript web app with a frontend, API layer, prompt logic, and deterministic demo outputs.
+
+Key areas:
+
+- `lib/` — core application and shared implementation files
+- `scripts/` — project scripts and helper tooling
+- `attached_assets/` — visual assets used by the app
+- `README.md` — project documentation and judging guide
+- `package.json` — project dependencies and run scripts
+- `pnpm-workspace.yaml` — workspace configuration
+
+Important implementation areas to inspect:
+
+- Gemma/live mode integration
+- demo-mode fallback outputs
+- unsafe phrase validation
+- persona-specific action-card generation
+- structured JSON output generation
+- UI for SMS, IVR, WhatsApp, rescue handoff, and offline checklist
+
 ## Setup
 
 ```bash
