@@ -1,6 +1,6 @@
 # Last-Mile Guardian
 
-An alert-to-action translation layer for floods. Converts a single official government flood warning into personalized survival action cards for vulnerable people who may not know what to do next.
+An alert-to-action translation layer for disasters, demonstrated first with urban flood alerts. Converts a single official government flood warning into personalized survival action cards for vulnerable people who may not know what to do next.
 
 ## Live Demo
 
