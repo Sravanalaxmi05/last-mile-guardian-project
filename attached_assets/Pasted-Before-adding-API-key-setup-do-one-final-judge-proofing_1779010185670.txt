@@ -1,0 +1,77 @@
+Before adding API key setup, do one final judge-proofing pass on the existing app.
+
+Do NOT rebuild from scratch.
+Do NOT add maps, login, database, real SMS, real WhatsApp, real IVR, real dispatch, or new personas.
+
+Fix these exact issues:
+
+1. Make the persona status badges different:
+- Asha: “High Risk”
+- Imran: “Assistance Required”
+- Meena: “Prepare & Monitor”
+
+2. Make the “First Safe Action” cards shorter and safer.
+
+For Asha:
+First Safe Action:
+“Move to the highest safe indoor area now. Take insulin, phone, charger, ID, and water. Stay away from switches and floodwater.”
+
+Why:
+“Because Asha is diabetic, alone, and on the ground floor, the system prioritizes vertical safety and medical continuity.”
+
+For Imran:
+First Safe Action:
+“Do not attempt stairs alone. Call emergency help or a trusted contact now. Send a rescue handoff card and conserve battery.”
+
+Why:
+“Because Imran uses a wheelchair and cannot evacuate independently, assisted evacuation is safer than self-evacuation.”
+
+For Meena:
+First Safe Action:
+“Keep children indoors. Pack child medicine, IDs, water, and phone charger. Do not step into floodwater. Wait for official evacuation instructions.”
+
+Why:
+“Because water is outside but not yet inside, the safest action is calm preparation, child safety, and avoiding panic travel.”
+
+3. Remove or rewrite any text that suggests:
+- checking outside by stepping near water
+- estimating safe route distance
+- crossing water
+- any route is safe
+- guaranteed rescue
+
+4. Make “Must Take” lists concise:
+Asha:
+- Insulin and medicines
+- Phone and charger
+- ID documents
+- Drinking water
+
+Imran:
+- Phone and charger
+- ID documents
+- Medicines
+- Rescue contact information
+
+Meena:
+- Children’s medicines
+- ID documents
+- Drinking water
+- Phone and charger
+- Simple food
+
+5. Add both Hindi script and simple romanized Hindi for IVR if possible.
+
+Example for Asha:
+“आशा जी, अभी ऊपर सुरक्षित जगह पर जाइए। इंसुलिन, फोन, चार्जर, पहचान पत्र और पानी साथ लीजिए। बिजली के स्विच और बाढ़ के पानी से दूर रहिए।”
+
+Romanized:
+“Asha ji, abhi upar surakshit jagah par jaiye. Insulin, phone, charger, ID aur paani saath lijiye.”
+
+6. Keep the “Same alert. Different lives. Different actions.” section visible automatically.
+
+7. Keep the app calm, simple, readable, and public-safety focused.
+
+8. Update README if needed to reflect these safer outputs.
+
+Only make these safety and clarity improvements.

@@ -1,0 +1,76 @@
+Update the existing Last-Mile Guardian Streamlit app. Do NOT rebuild from scratch. Do NOT add new features like maps, login, database, real SMS, real WhatsApp, real IVR, mobile app, or dispatch.
+
+The current app looks good visually, but it still feels too much like a landing page. Improve it so judges can immediately see the core intelligence:
+
+“Same alert. Different lives. Different actions.”
+
+Main goal:
+Make the generated outputs the centerpiece of the app and make Gemma-style reasoning visible.
+
+Please make these exact changes:
+
+1. After clicking “Generate Action Cards with Gemma 4,” immediately show a strong output section for the selected persona with these cards:
+- First Safe Action
+- Why This Action
+- Must Take
+- Do Not Do
+- SMS Action Card
+- Hindi IVR Script
+- WhatsApp Family Card
+- Volunteer Rescue Handoff
+- Offline Checklist
+- Structured JSON
+
+2. Add a “Why This Action” explanation for each persona.
+
+For Asha:
+Because she is diabetic, alone, and on the ground floor, prioritize moving upstairs, taking insulin, phone, charger, ID, water, and avoiding electrical switches.
+
+For Imran:
+Because he is a wheelchair user and cannot evacuate alone, prioritize not attempting stairs, sending a rescue handoff card, conserving battery, and waiting for assisted evacuation.
+
+For Meena:
+Because she has two children and water is outside but not inside, prioritize keeping children indoors, packing child medicine and IDs, avoiding travel, and waiting for official updates.
+
+3. Make the “Same alert. Different lives. Different actions.” section visible automatically. Do not hide it behind a button. Show Asha, Imran, and Meena side by side with clearly different first actions.
+
+4. Add Hindi proof:
+Each persona should have a Hindi IVR script and a short Hindi SMS-style line. Keep it simple and readable.
+
+5. Add structured JSON output:
+Show JSON with fields:
+first_action
+why_this_action
+must_take
+do_not_do
+sms_card
+ivr_script
+volunteer_rescue_card
+priority
+safety_notes
+
+6. Add a small badge near the output:
+“Demo Mode: deterministic sample outputs”
+and another note:
+“Real Gemma Mode activates when GOOGLE_API_KEY or GEMMA_API_KEY is available.”
+
+7. Fix the footer text. It should say:
+“Built for the Gemma 4 Good Hackathon”
+not “Built for the Replit + Google AI Hackathon.”
+
+8. Fix any formatting issues in persona cards, including missing spaces like “Conditions:wheelchair”.
+
+9. Reduce excessive vertical whitespace. Keep the hero section, but make outputs appear sooner.
+
+10. Keep the design calm and public-safety focused:
+light background, readable cards, blue/orange accents, no chatbot UI, no dark hacker theme.
+
+11. Update README if needed to explain:
+- this is an alert-to-action layer
+- why alerts are not enough
+- why Gemma 4 is essential
+- how demo mode works
+- what real Gemma mode would do
+- safety limitations
+
+Do not add extra scope. Only improve proof, clarity, and judge impression.

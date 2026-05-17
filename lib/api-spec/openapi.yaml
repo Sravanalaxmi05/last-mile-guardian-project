@@ -1,0 +1,240 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: Last-Mile Guardian API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: personas
+    description: Persona operations
+  - name: cards
+    description: Action card generation
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /personas:
+    get:
+      operationId: listPersonas
+      tags: [personas]
+      summary: Get available personas
+      description: Returns the list of predefined vulnerable personas
+      responses:
+        "200":
+          description: List of personas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Persona"
+
+  /action-cards:
+    post:
+      operationId: generateActionCards
+      tags: [cards]
+      summary: Generate action cards
+      description: Generate personalized survival action cards for a flood alert and persona
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ActionCardRequest"
+      responses:
+        "200":
+          description: Generated action cards
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActionCardResult"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /action-cards/compare:
+    post:
+      operationId: comparePersonas
+      tags: [cards]
+      summary: Compare all personas
+      description: Generate action cards for all personas with the same alert for side-by-side comparison
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompareRequest"
+      responses:
+        "200":
+          description: Action cards for all personas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PersonaCardPair"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    ApiError:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    Persona:
+      type: object
+      required: [id, name, age, description, conditions, floor, canEvacuateAlone, languagePreference, internetStrength]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        age:
+          type: integer
+        description:
+          type: string
+        conditions:
+          type: array
+          items:
+            type: string
+        floor:
+          type: string
+        canEvacuateAlone:
+          type: boolean
+        languagePreference:
+          type: string
+        internetStrength:
+          type: string
+
+    ActionCardRequest:
+      type: object
+      required: [alertText, personaId]
+      properties:
+        alertText:
+          type: string
+          description: The official flood alert text
+        personaId:
+          type: string
+          description: The persona ID to generate cards for
+        apiKey:
+          type: string
+          description: Optional API key for live Gemma mode (used only in memory, never stored)
+
+    CompareRequest:
+      type: object
+      required: [alertText]
+      properties:
+        alertText:
+          type: string
+          description: The official flood alert text to use for comparison
+        apiKey:
+          type: string
+          description: Optional API key for live Gemma mode (used only in memory, never stored)
+
+    ActionCards:
+      type: object
+      required:
+        - risk_summary
+        - first_action
+        - why_this_action
+        - next_3_steps
+        - must_take
+        - do_not_do
+        - battery_saving_tip
+        - rumor_safety_note
+        - sms_card
+        - ivr_script
+        - whatsapp_family_card
+        - volunteer_rescue_card
+        - offline_checklist
+        - gemma_reasoning_summary
+      properties:
+        risk_summary:
+          type: string
+        first_action:
+          type: string
+        why_this_action:
+          type: string
+        next_3_steps:
+          type: array
+          items:
+            type: string
+        must_take:
+          type: array
+          items:
+            type: string
+        do_not_do:
+          type: array
+          items:
+            type: string
+        battery_saving_tip:
+          type: string
+        rumor_safety_note:
+          type: string
+        sms_card:
+          type: string
+        ivr_script:
+          type: string
+        whatsapp_family_card:
+          type: string
+        volunteer_rescue_card:
+          type: string
+        offline_checklist:
+          type: array
+          items:
+            type: string
+        gemma_reasoning_summary:
+          type: string
+
+    ActionCardResult:
+      type: object
+      required: [persona, cards, mode]
+      properties:
+        persona:
+          $ref: "#/components/schemas/Persona"
+        cards:
+          $ref: "#/components/schemas/ActionCards"
+        mode:
+          type: string
+          description: "demo or gemma"
+
+    PersonaCardPair:
+      type: object
+      required: [persona, cards, mode]
+      properties:
+        persona:
+          $ref: "#/components/schemas/Persona"
+        cards:
+          $ref: "#/components/schemas/ActionCards"
+        mode:
+          type: string

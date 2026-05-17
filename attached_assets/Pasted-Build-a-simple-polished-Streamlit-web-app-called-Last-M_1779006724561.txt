@@ -1,0 +1,113 @@
+Build a simple, polished Streamlit web app called “Last-Mile Guardian.”
+
+I am non-technical and have only one free Replit project. Keep this reliable and simple. Do not overbuild.
+
+Project idea:
+Last-Mile Guardian is a Gemma 4-powered alert-to-action layer for floods. It converts an official flood alert into personalized survival action cards for vulnerable people.
+
+This is NOT a chatbot, flood prediction system, government alert replacement, real rescue dispatch system, or real SMS/WhatsApp/IVR sender.
+
+Build only this MVP flow:
+Official Alert → Persona Selector → Generate Action Cards → Same Alert/Different Lives → Rescue Handoff → Architecture.
+
+Use Python + Streamlit.
+
+Create these files:
+app.py
+gemma_client.py
+prompts.py
+sample_data.py
+requirements.txt
+README.md
+
+App sections:
+
+1. Hero
+Title: Last-Mile Guardian
+Subtitle: Official alerts tell everyone the danger. Last-Mile Guardian tells each person their next safe action.
+
+2. Official Alert Input
+Default editable alert:
+“Official Flood Warning: Heavy rainfall and urban flooding expected in low-lying areas. Avoid travel through waterlogged roads. Follow local authorities.”
+
+3. Persona Selector
+Exactly three personas:
+Asha: 68, diabetic, lives alone, ground floor, Hindi preferred, weak internet.
+Imran: wheelchair user, first floor, cannot evacuate alone, Hindi preferred, weak internet.
+Meena: mother with two children, water outside but not inside, Hindi preferred, weak internet.
+
+4. Generate Button
+Button text: Generate Action Cards with Gemma 4
+
+5. Core Function
+Create generate_action_cards(alert_text, persona). It should return structured JSON with:
+risk_summary
+first_action
+why_this_action
+next_3_steps
+must_take
+do_not_do
+battery_saving_tip
+rumor_safety_note
+sms_card
+ivr_script
+whatsapp_family_card
+volunteer_rescue_card
+offline_checklist
+gemma_reasoning_summary
+
+6. Output Cards
+Display clean emergency cards:
+First Safe Action
+Why This Action
+SMS Action Card
+IVR Voice Script
+WhatsApp Family Card
+Volunteer Rescue Handoff
+Offline Checklist
+Structured JSON
+
+7. Key Demo Section
+Add a strong visual comparison titled:
+“Same alert. Different lives. Different actions.”
+
+Show Asha, Imran, and Meena side by side using the same alert, with different actions.
+
+8. Safety Section
+Include:
+Does not replace official authorities.
+Does not predict floods.
+Does not guarantee rescue.
+Does not claim routes are safe.
+Uses official alert text as source.
+Avoids rumors and forwarded misinformation.
+
+9. Architecture Section
+Show this pipeline:
+Official Alert + Vulnerability Profile + Language Preference + Safety Rules + Channel Constraint
+→ Gemma 4 Structured Reasoning
+→ Action JSON
+→ SMS / IVR / WhatsApp / Rescue Card / Offline Checklist
+
+10. Gemma Integration
+Add two modes:
+Demo Mode: works without API key using high-quality deterministic outputs for Asha, Imran, and Meena.
+Real Gemma Mode: if GOOGLE_API_KEY or GEMMA_API_KEY exists, call the model through gemma_client.py.
+The app must not break without an API key.
+
+11. Testing
+Add basic validation to ensure:
+all personas generate outputs,
+required JSON fields exist,
+SMS is concise,
+outputs do not say “this route is safe,”
+outputs do not guarantee rescue,
+outputs do not claim flood prediction.
+
+Design:
+Calm public-safety style. Light background. Blue/orange accents. Large readable cards. No chatbot UI. No dark hacker theme. No cluttered dashboard.
+
+README:
+Include project description, problem, why alerts are not enough, why Gemma 4 is essential, setup, safety limitations, demo script, and future roadmap.
+
+Build the complete working MVP now. Do not add maps, login, databases, mobile app, real SMS, real WhatsApp, real IVR, or real dispatch.

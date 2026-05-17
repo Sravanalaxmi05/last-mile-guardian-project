@@ -1,0 +1,86 @@
+Now add real Gemma mode carefully without breaking demo mode.
+
+Do NOT rebuild the app.
+Do NOT add maps, login, database, real SMS, real WhatsApp, real IVR, or real dispatch.
+
+Goal:
+The app should work in two modes:
+1. Demo Mode: deterministic sample outputs, works without any key.
+2. Live Gemma Mode: if GOOGLE_API_KEY or GEMMA_API_KEY is available, generate outputs using the model.
+
+Implementation requirements:
+
+1. Keep Demo Mode as the default fallback.
+If no key is available, the app must work perfectly.
+
+2. Use Replit Secrets / environment variables first:
+GOOGLE_API_KEY
+or
+GEMMA_API_KEY
+
+3. Also add an optional sidebar field:
+“Optional API key for live Gemma mode”
+Use it only in memory for the current session.
+Never print it.
+Never log it.
+Never display it.
+
+4. Add clear badges:
+“Demo Mode: deterministic sample outputs”
+or
+“Live Gemma Mode: model-generated outputs”
+
+5. If live model call fails, show:
+“Live Gemma mode failed. Falling back to safe demo outputs.”
+Then automatically use demo outputs.
+
+6. In gemma_client.py, implement a clean function:
+generate_with_gemma(alert_text, persona, api_key)
+
+7. The prompt sent to the model must require structured JSON with exactly these fields:
+risk_summary
+first_action
+why_this_action
+next_3_steps
+must_take
+do_not_do
+battery_saving_tip
+rumor_safety_note
+sms_card
+hindi_sms
+ivr_script_hindi
+ivr_script_romanized
+whatsapp_family_card
+volunteer_rescue_card
+offline_checklist
+priority
+safety_notes
+gemma_reasoning_summary
+
+8. Add strong safety instructions in the model prompt:
+- Do not replace official authorities.
+- Do not predict floods.
+- Do not guarantee rescue.
+- Do not claim any route is safe.
+- Do not tell users to walk through floodwater.
+- Do not rely on forwarded rumors.
+- Use the official alert as the source.
+- Give short, calm, actionable instructions.
+
+9. Add a small “Model Output” section that shows the structured JSON returned by live mode or demo mode.
+
+10. Update README:
+- explain demo mode
+- explain live Gemma mode
+- explain how to set GOOGLE_API_KEY in Replit Secrets
+- explain safety limitations
+
+11. Add a small validation function that checks generated output does not contain unsafe phrases like:
+“route is safe”
+“guaranteed rescue”
+“predict flood”
+“walk through floodwater”
+
+If unsafe phrases appear, show a warning and fall back to safe demo output.
+
+Keep the UI clean and unchanged except for the optional API key input and mode badge.
