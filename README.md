@@ -8,6 +8,32 @@ Try the deployed MVP here:
 
 https://simple-streamlit-app--sravaninomula55.replit.app/
 
+## Screenshots
+
+### Hero
+
+![Hero](assets/hero.png)
+
+### Vulnerability Profiles
+
+![Persona selector](assets/personas.png)
+
+### Personalized Action Plan
+
+![Asha action plan](assets/action-plan-asha.png)
+
+### Same Alert, Different Lives
+
+![Same alert different lives](assets/same-alert-different-lives.png)
+
+### Architecture
+
+![Architecture](assets/architecture.png)
+
+### Safety Constraints
+
+![Safety](assets/safety.png)
+
 ## The Problem
 
 Official flood alerts are broadcast to everyone. But a 68-year-old diabetic woman living alone on the ground floor needs completely different actions than a wheelchair user on the first floor — and both need different guidance than a mother sheltering with two young children. The alert tells them the danger. It does not tell them their next safe action.
