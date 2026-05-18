@@ -5,8 +5,13 @@ An alert-to-action translation layer for disasters, demonstrated first with urba
 ## Live Demo
 
 Try the deployed MVP here:
+https://last-mile-guardian-project--jatindehmiwal.replit.app
 
-https://simple-streamlit-app--sravaninomula55.replit.app/
+YouTube main demo: https://youtu.be/uAl7MHutjtc
+
+Functional demo: https://youtu.be/q0Z6umcOWjQ
+
+GitHub: https://github.com/Sravanalaxmi05/last-mile-guardian-project
 
 ## Screenshots
 
